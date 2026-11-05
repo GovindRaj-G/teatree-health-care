@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teatree Health Care - Enterprise Medical Camp Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 antialiased">
+
+    <div id="app" class="min-h-screen flex flex-col">
+        
+        <header class="bg-emerald-800 text-white shadow-lg sticky top-0 z-50 border-b border-emerald-900">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white text-emerald-800 p-2.5 rounded-xl font-bold shadow-md">
+                        <i class="fa-solid fa-hospital text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg tracking-wide leading-tight">TEATREE HEALTH CARE</h1>
+                        <p class="text-xs text-emerald-200">Enterprise Mobile Health Camp Database Portal</p>
+                    </div>
+                </div>
+                <div id="header-user-section" class="hidden flex items-center space-x-4">
+                    <span id="current-user-display" class="text-xs font-medium bg-emerald-900 px-3 py-1.5 rounded-lg border border-emerald-700 shadow-inner"></span>
+                    <button onclick="logout()" class="text-xs bg-rose-700 hover:bg-rose-600 px-3.5 py-2 rounded-lg transition font-semibold shadow">
+                        <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6">
+
+            <!-- AUTHENTICATION VIEW -->
+            <div id="view-auth" class="max-w-md mx-auto mt-16 bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+                <div class="bg-emerald-800 p-6 text-white text-center">
+                    <h2 class="text-2xl font-bold">Staff Portal Login</h2>
+                    <p class="text-xs text-emerald-200 mt-1">Secure access to centralized database records</p>
+                </div>
+                
+                <div class="p-6">
+                    <div class="flex bg-slate-100 p-1 rounded-xl mb-6">
+                        <button id="tab-login-btn" onclick="setAuthTab('login')" class="flex-1 py-2 text-xs font-bold uppercase rounded-lg bg-white shadow text-emerald-800 transition">Login</button>
+                        <button id="tab-signup-btn" onclick="setAuthTab('signup')" class="flex-1 py-2 text-xs font-bold uppercase rounded-lg text-slate-500 transition">Register Staff</button>
+                    </div>
+
+                    <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">User ID</label>
+                            <input type="text" id="login-userid" required placeholder="e.g. admin" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-600 focus:outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Password</label>
+                            <input type="password" id="login-pass" required placeholder="••••••••" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-600 focus:outline-none text-sm">
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3 rounded-xl shadow-lg transition duration-200 text-sm">
+                            Secure Authentication
+                        </button>
+                        <p class="text-xs text-center text-slate-500 mt-4">Default Admin — ID: <code class="bg-slate-100 px-1.5 py-0.5 rounded text-emerald-800 font-bold">admin</code> | Pass: <code class="bg-slate-100 px-1.5 py-0.5 rounded text-emerald-800 font-bold">1234</code></p>
+                    </form>
+
+                    <form id="form-signup" onsubmit="handleSignup(event)" class="space-y-4 hidden">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Full Name & Title</label>
+                            <input type="text" id="signup-name" required placeholder="Dr. Jane Smith" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-600 focus:outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Create User ID</label>
+                            <input type="text" id="signup-userid" required placeholder="e.g. drsmith" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-600 focus:outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Password</label>
+                            <input type="password" id="signup-pass" required placeholder="••••••••" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-600 focus:outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Assigned Role</label>
+                            <select id="signup-role" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-600 focus:outline-none text-sm bg-white">
+                                <option value="Medical Officer / Doctor">Medical Officer / Doctor</option>
+                                <option value="Camp Coordinator">Camp Coordinator</option>
+                                <option value="Lab Technician">Lab Technician</option>
+                                <option value="System Admin">System Admin</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-800 hover:bg-emerald-900 text-white font-semibold py-3 rounded-xl shadow-lg transition duration-200 text-sm">
+                            Register Staff Member
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- MAIN DASHBOARD & DATA ENTRY VIEW -->
+            <div id="view-dashboard" class="hidden space-y-6">
+                
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap justify-between items-center gap-4">
+                    <div>
+                        <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Active Station: General Physical Examination (GPE)</span>
+                        <h2 class="text-xl font-bold text-slate-800 mt-1">Participant Clinical Screening &amp; Vitals Logger</h2>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button onclick="downloadExcel()" class="bg-emerald-800 hover:bg-emerald-900 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow flex items-center space-x-2 transition">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Export Database to Excel (.xlsx)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                        <div class="bg-emerald-50 text-emerald-700 p-3.5 rounded-xl text-xl shadow-sm"><i class="fa-solid fa-users"></i></div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Total Screened</p>
+                            <h3 id="stat-total" class="text-2xl font-bold text-slate-800">0</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                        <div class="bg-amber-50 text-amber-700 p-3.5 rounded-xl text-xl shadow-sm"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Abnormal Findings</p>
+                            <h3 id="stat-abnormal" class="text-2xl font-bold text-slate-800">0</h3>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center space-x-4">
+                        <div class="bg-blue-50 text-blue-700 p-3.5 rounded-xl text-xl shadow-sm"><i class="fa-solid fa-database"></i></div>
+                        <div>
+                            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Database Status</p>
+                            <h3 class="text-sm font-bold text-emerald-700 mt-1">MySQL Connected</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800"><i class="fa-solid fa-user-plus text-emerald-700 mr-2"></i> Record New Participant</h3>
+                        <span class="text-xs text-slate-500 font-medium">All fields required for clinical audit</span>
+                    </div>
+                    <form id="camp-form" onsubmit="saveRecord(event)" class="p-6 space-y-6">
+                        
+                        <div>
+                            <h4 class="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-3">1. Participant Demographics</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Reg. No.</label>
+                                    <input type="text" id="p-regno" required placeholder="e.g. REG-001" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-600 focus:outline-none text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Employee / ID Number</label>
+                                    <input type="text" id="p-id" required placeholder="e.g. IFB-101" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-600 focus:outline-none text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Full Name</label>
+                                    <input type="text" id="p-name" required placeholder="Participant Full Name" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-600 focus:outline-none text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Age / Gender</label>
+                                    <div class="flex space-x-2">
+                                        <input type="number" id="p-age" required placeholder="Age" class="w-1/2 px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-600 focus:outline-none text-sm">
+                                        <select id="p-gender" class="w-1/2 px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-600 focus:outline-none text-sm bg-white">
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-100">
+                            <h4 class="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-3">2. Vitals &amp; Biometrics</h4>
+                            <div class="grid grid-cols-2 sm:grid-cols-6 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Height (cm)</label>
+                                    <input type="number" step="0.1" id="f-height" required placeholder="170" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Weight (kg)</label>
+                                    <input type="number" step="0.1" id="f-weight" required placeholder="70" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Blood Pressure</label>
+                                    <input type="text" id="f-bp" required placeholder="120/80" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Pulse (bpm)</label>
+                                    <input type="number" id="f-pulse" required placeholder="72" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">SpO2 (%)</label>
+                                    <input type="number" id="f-spo2" required placeholder="98" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Temp (°F)</label>
+                                    <input type="number" step="0.1" id="f-temp" required placeholder="98.6" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Doctor Remarks / General Notes</label>
+                                <input type="text" id="f-notes" placeholder="Normal findings" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-4">
+                            <button type="submit" class="bg-emerald-800 hover:bg-emerald-900 text-white font-semibold px-6 py-2.5 rounded-xl shadow transition text-sm flex items-center space-x-2">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <span>Save to MySQL Database</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800"><i class="fa-solid fa-database text-emerald-700 mr-2"></i> Centralized Database Log</h3>
+                        <span id="record-count-badge" class="text-xs bg-slate-100 text-slate-700 font-bold px-3 py-1 rounded-full">0 Records</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-600 uppercase text-xs tracking-wider border-b border-slate-200">
+                                    <th class="p-3.5">Reg. No.</th>
+                                    <th class="p-3.5">ID</th>
+                                    <th class="p-3.5">Name</th>
+                                    <th class="p-3.5">Age/Gender</th>
+                                    <th class="p-3.5">Vitals / Parameters</th>
+                                    <th class="p-3.5">Clinical Notes</th>
+                                    <th class="p-3.5">Status</th>
+                                    <th class="p-3.5 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="records-tbody" class="divide-y divide-slate-100 text-sm">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+        
+        <footer class="bg-white border-t border-slate-200 py-4 mt-auto text-center text-xs text-slate-500">
+            Teatree Health Care Pvt. Ltd. &bull; Secure Enterprise Database Management System
+        </footer>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let records = [];
+
+        async function initApp() {
+            try {
+                const res = await fetch('/api/records');
+                if (res.ok) {
+                    records = await res.json();
+                    currentUser = JSON.parse(sessionStorage.getItem('teatree_user') || 'null');
+                    if (currentUser) {
+                        showView('dashboard');
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.error("Database connection check failed", e);
+            }
+            showView('auth');
+        }
+
+        function setAuthTab(tab) {
+            const loginBtn = document.getElementById('tab-login-btn');
+            const signupBtn = document.getElementById('tab-signup-btn');
+            const loginForm = document.getElementById('form-login');
+            const signupForm = document.getElementById('form-signup');
+
+            if (tab === 'login') {
+                loginBtn.className = "flex-1 py-2 text-xs font-bold uppercase rounded-lg bg-white shadow text-emerald-800 transition";
+                signupBtn.className = "flex-1 py-2 text-xs font-bold uppercase rounded-lg text-slate-500 transition";
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+            } else {
+                signupBtn.className = "flex-1 py-2 text-xs font-bold uppercase rounded-lg bg-white shadow text-emerald-800 transition";
+                loginBtn.className = "flex-1 py-2 text-xs font-bold uppercase rounded-lg text-slate-500 transition";
+                signupForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const userid = document.getElementById('login-userid').value.trim();
+            const pass = document.getElementById('login-pass').value.trim();
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userid, pass })
+                });
+                const res = await response.json();
+                if (response.ok) {
+                    currentUser = res.user;
+                    sessionStorage.setItem('teatree_user', JSON.stringify(currentUser));
+                    document.getElementById('form-login').reset();
+                    showView('dashboard');
+                } else {
+                    alert(res.message || 'Login failed');
+                }
+            } catch (err) {
+                alert('Server connection error.');
+            }
+        }
+
+        async function handleSignup(e) {
+            e.preventDefault();
+            const name = document.getElementById('signup-name').value.trim();
+            const userid = document.getElementById('signup-userid').value.trim();
+            const pass = document.getElementById('signup-pass').value.trim();
+            const role = document.getElementById('signup-role').value;
+
+            try {
+                const response = await fetch('/api/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, userid, pass, role })
+                });
+                const res = await response.json();
+                if (response.ok) {
+                    alert('Staff registered successfully! Please log in.');
+                    setAuthTab('login');
+                    document.getElementById('form-signup').reset();
+                } else {
+                    alert(res.message);
+                }
+            } catch (err) {
+                alert('Registration failed.');
+            }
+        }
+
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            sessionStorage.removeItem('teatree_user');
+            currentUser = null;
+            showView('auth');
+        }
+
+        function showView(viewName) {
+            document.getElementById('view-auth').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById('header-user-section').classList.add('hidden');
+
+            if (viewName === 'auth') {
+                document.getElementById('view-auth').classList.remove('hidden');
+            } else if (viewName === 'dashboard') {
+                document.getElementById('view-dashboard').classList.remove('hidden');
+                document.getElementById('header-user-section').classList.remove('hidden');
+                document.getElementById('current-user-display').innerHTML = `<i class="fa-solid fa-user-shield mr-1"></i> ${currentUser.name} (${currentUser.role})`;
+                renderDashboard();
+            }
+        }
+
+        async function saveRecord(e) {
+            e.preventDefault();
+            const regno = document.getElementById('p-regno').value.trim();
+            const pid = document.getElementById('p-id').value.trim();
+            const name = document.getElementById('p-name').value.trim();
+            const age = document.getElementById('p-age').value.trim();
+            const gender = document.getElementById('p-gender').value;
+
+            const h = parseFloat(document.getElementById('f-height').value);
+            const w = parseFloat(document.getElementById('f-weight').value);
+            const bp = document.getElementById('f-bp').value;
+            const pulse = document.getElementById('f-pulse').value;
+            const spo2 = document.getElementById('f-spo2').value;
+            const temp = parseFloat(document.getElementById('f-temp').value);
+            const notes = document.getElementById('f-notes').value;
+
+            const bmi = (w / Math.pow(h / 100, 2)).toFixed(1);
+            let isAbnormal = bmi > 25 || temp > 99.1;
+
+            const newRecord = {
+                id: 'REC-' + Date.now().toString().slice(-4),
+                regno, pid, name, age, gender,
+                details: { height: h, weight: w, bmi, bp, pulse, spo2, temp, notes },
+                isAbnormal,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+
+            try {
+                const response = await fetch('/api/records', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newRecord)
+                });
+                if (response.ok) {
+                    const fetchRes = await fetch('/api/records');
+                    records = await fetchRes.json();
+                    document.getElementById('camp-form').reset();
+                    renderDashboard();
+                    alert('Record committed to MySQL database!');
+                }
+            } catch (err) {
+                alert('Database write failed.');
+            }
+        }
+
+        async function deleteRecord(recordId) {
+            if (!confirm('Are you sure you want to delete this record from the MySQL database?')) return;
+
+            try {
+                const response = await fetch(`/api/records/${recordId}`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    const fetchRes = await fetch('/api/records');
+                    records = await fetchRes.json();
+                    renderDashboard();
+                    alert('Record deleted successfully.');
+                } else {
+                    alert('Failed to delete record.');
+                }
+            } catch (err) {
+                alert('Server connection error.');
+            }
+        }
+
+        function renderDashboard() {
+            document.getElementById('stat-total').innerText = records.length;
+            const abnormalCount = records.filter(r => r.isAbnormal).length;
+            document.getElementById('stat-abnormal').innerText = abnormalCount;
+            document.getElementById('record-count-badge').innerText = records.length + ' Records';
+
+            const tbody = document.getElementById('records-tbody');
+            tbody.innerHTML = '';
+
+            if (records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">No records found in database.</td></tr>`;
+                return;
+            }
+
+            records.forEach((r) => {
+                const col1Text = `BMI: ${r.details.bmi} | BP: ${r.details.bp} | SpO2: ${r.details.spo2}% | Temp: ${r.details.temp}°F`;
+                const col2Text = r.details.notes || 'N/A';
+
+                const statusBadge = r.isAbnormal 
+                    ? `<span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-semibold">Review / Abnormal</span>`
+                    : `<span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-semibold">Normal</span>`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                        <td class="p-3.5 font-mono text-xs font-bold text-emerald-800">${r.regno || 'N/A'}</td>
+                        <td class="p-3.5 font-mono text-xs text-slate-500">${r.pid}</td>
+                        <td class="p-3.5 font-semibold text-slate-800">${r.name}</td>
+                        <td class="p-3.5 text-slate-600">${r.age} yrs / ${r.gender}</td>
+                        <td class="p-3.5 text-slate-700 font-medium">${col1Text}</td>
+                        <td class="p-3.5 text-slate-500">${col2Text}</td>
+                        <td class="p-3.5">${statusBadge}</td>
+                        <td class="p-3.5 text-right">
+                            <button onclick="deleteRecord('${r.id}')" class="bg-rose-100 hover:bg-rose-200 text-rose-700 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm">
+                                <i class="fa-solid fa-trash mr-1"></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function downloadExcel() {
+            if (records.length === 0) {
+                alert('No database records available to export.');
+                return;
+            }
+
+            const exportData = records.map(r => ({
+                'Record ID': r.id,
+                'Reg. No.': r.regno,
+                'Participant ID': r.pid,
+                'Full Name': r.name,
+                'Age': r.age,
+                'Gender': r.gender,
+                ...r.details,
+                'Status': r.isAbnormal ? 'Abnormal / Review' : 'Normal',
+                'Recorded By': r.recordedBy,
+                'Timestamp': r.timestamp
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Teatree_Database_Export');
+            
+            XLSX.writeFile(workbook, 'Teatree_Health_Camp_Database_Report.xlsx');
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
